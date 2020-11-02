@@ -14,7 +14,7 @@ public class Book_Ex {
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
-		System.out.println("### µµ¼­°ü¸® ÇÁ·Î±×·¥ ½ÃÀÛ ###\n");
+		System.out.println("### ë„ì„œê´€ë¦¬ í”„ë¡œê·¸ë¨ ì‹œì‘ ###\n");
 		
 		while(true) {
 			menu = bookmenu();
@@ -35,22 +35,22 @@ public class Book_Ex {
 				bookdelete();
 				break;
 			default:
-				System.out.println("ÇÁ·Î±×·¥ Á¾·á\n");
+				System.out.println("í”„ë¡œê·¸ë¨ ì¢…ë£Œ\n");
 				return;
 			}
 			}
 		}
 	static int bookmenu() {
 		Scanner sc = new Scanner(System.in);
-		System.out.println("### µµ¼­°ü¸®´ëÀå ###");
-		System.out.println(" 1. µµ¼­Á¤º¸ ÀÔ·Â\n 2. µµ¼­Á¤º¸ Ãâ·Â\n 3. µµ¼­Á¤º¸ Á¶È¸\n 4. µµ¼­Á¤º¸ ¼öÁ¤\n 5. µµ¼­Á¤º¸ »èÁ¦\n 6. ÇÁ·Î±×·¥ Á¾·á");
+		System.out.println("### ë„ì„œê´€ë¦¬ëŒ€ì¥ ###");
+		System.out.println(" 1. ë„ì„œì •ë³´ ì…ë ¥\n 2. ë„ì„œì •ë³´ ì¶œë ¥\n 3. ë„ì„œì •ë³´ ì¡°íšŒ\n 4. ë„ì„œì •ë³´ ìˆ˜ì •\n 5. ë„ì„œì •ë³´ ì‚­ì œ\n 6. í”„ë¡œê·¸ë¨ ì¢…ë£Œ");
 		System.out.println();
-		System.out.print("- µµ¼­°ü¸® ¸Ş´º¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ");
+		System.out.print("- ë„ì„œê´€ë¦¬ ë©”ë‰´ë¥¼ ì…ë ¥í•˜ì„¸ìš” : ");
 		menu = sc.nextInt();
 		System.out.println();
 		return menu;
 	}
-	static Connection connectDB() {  //DB»ç¿ëÇÒ¶§¸¶´Ù ÇÊ¿äÇÏ¿© ¸¸µë
+	static Connection connectDB() {  //DBì‚¬ìš©í• ë•Œë§ˆë‹¤ í•„ìš”í•˜ì—¬ ë§Œë“¬
 	    Connection con =null;
 	    try {
 	      String driver = "oracle.jdbc.driver.OracleDriver";
@@ -67,20 +67,33 @@ public class Book_Ex {
 		Connection con =null;
 		Scanner sc = new Scanner(System.in);
 		
-		System.out.print("µµ¼­¸í : ");
+		System.out.print("ë„ì„œëª… : ");
 		book = sc.next();
-		System.out.print("ÀúÀÚ : ");
+		System.out.print("ì €ì : ");
 		writer = sc.next();
-		System.out.print("µµ¼­À§Ä¡ : ");
+		System.out.print("ë„ì„œìœ„ì¹˜ : ");
 		site = sc.next();
-		System.out.print("ÃâÆÇ»ç : ");
+		System.out.print("ì¶œíŒì‚¬ : ");
 		puble = sc.next();
 		
 		con= connectDB();
 		PreparedStatement pstmt = null;
-		String sql = "Insert Into book_db (BOOKNO, BOOK, WRITER, SITE, PUBLE) " +"Values(BOOKNO_SEQ.NEXTVAL,?,?,?,?)";
-		    
+		String sql = "Insert Into book_db (BOOKNO, BOOK, WRITER, SITE, PUBLE, STOCK) " +"Values(BOOKNO_SEQ.NEXTVAL,?,?,?,?,INSERT_SQ.NEXTVAL)";
+		String sql1 = "Select * from book_db where book =?";
 		    try {
+		      pstmt = con.prepareStatement(sql1);
+		      pstmt.setString(1, book);
+		      ResultSet rs = pstmt.executeQuery();
+		      if(rs.next()) {
+		      String name = rs.getString("book");
+		      	if(name.equals(book)) {
+		    	  String sql2 = "Update book_db set stock =Insert_sq.nextval where book = ?";
+		    	  pstmt=con.prepareStatement(sql2);
+		    	  pstmt.setString(1, book);
+		    	  pstmt.executeUpdate();
+		      	}
+		      }
+		      else {
 		      pstmt = con.prepareStatement(sql);
 		      pstmt.setString(1, book);
 		      pstmt.setString(2, writer);
@@ -88,14 +101,15 @@ public class Book_Ex {
 		      pstmt.setString(4, puble);
 		     
 		      int res = pstmt.executeUpdate();
-		      //int res = pstmt.executeUpdate(); //»ğÀÔÇÑ ·¹ÄÚµå °¹¼ö°¡ ¹İÈ¯
+		      //int res = pstmt.executeUpdate(); //ì‚½ì…í•œ ë ˆì½”ë“œ ê°¯ìˆ˜ê°€ ë°˜í™˜
 		      if(res ==1)
-		    	System.out.println("\n½Å±Ôµµ¼­°¡ µî·ÏµÇ¾ú½À´Ï´Ù.\n");
+		    	System.out.println("\nì‹ ê·œë„ì„œê°€ ë“±ë¡ë˜ì—ˆìŠµë‹ˆë‹¤.\n");
 		      else
-		        System.out.println("\n ÀÌ¹Ì µî·ÏµÈ µµ¼­ÀÔ´Ï´Ù!!!");
+		        System.out.println("\n ì´ë¯¸ ë“±ë¡ëœ ë„ì„œì…ë‹ˆë‹¤!!!");
+		      }
 		    }
 		    catch(Exception e) {
-		      System.out.println("\nµ¥ÀÌÅÍº£ÀÌ½º ¿¬°á ½ÇÆĞ+"+e.getMessage());
+		      System.out.println("\në°ì´í„°ë² ì´ìŠ¤ ì—°ê²° ì‹¤íŒ¨+"+e.getMessage());
 		    }
 		    finally {
 		      try {
@@ -112,6 +126,54 @@ public class Book_Ex {
 		      }
 		    }
 	}
+		/*Connection con =null;
+		Scanner sc = new Scanner(System.in);
+		
+		System.out.print("ë„ì„œëª… : ");
+		book = sc.next();
+		System.out.print("ì €ì : ");
+		writer = sc.next();
+		System.out.print("ë„ì„œìœ„ì¹˜ : ");
+		site = sc.next();
+		System.out.print("ì¶œíŒì‚¬ : ");
+		puble = sc.next();
+		
+		con= connectDB();
+		PreparedStatement pstmt = null;
+		String sql = "Insert Into book_db (BOOKNO, BOOK, WRITER, SITE, PUBLE) " +"Values(BOOKNO_SEQ.NEXTVAL,?,?,?,?)";
+		    
+		    try {
+		      pstmt = con.prepareStatement(sql);
+		      pstmt.setString(1, book);
+		      pstmt.setString(2, writer);
+		      pstmt.setString(3, site);
+		      pstmt.setString(4, puble);
+		     
+		      int res = pstmt.executeUpdate();
+		      //int res = pstmt.executeUpdate(); //ì‚½ì…í•œ ë ˆì½”ë“œ ê°¯ìˆ˜ê°€ ë°˜í™˜
+		      if(res ==1)
+		    	System.out.println("\nì‹ ê·œë„ì„œê°€ ë“±ë¡ë˜ì—ˆìŠµë‹ˆë‹¤.\n");
+		      else
+		        System.out.println("\n ì´ë¯¸ ë“±ë¡ëœ ë„ì„œì…ë‹ˆë‹¤!!!");
+		    }
+		    catch(Exception e) {
+		      System.out.println("\në°ì´í„°ë² ì´ìŠ¤ ì—°ê²° ì‹¤íŒ¨+"+e.getMessage());
+		    }
+		    finally {
+		      try {
+		        if(pstmt != null) pstmt.close();
+		      }
+		      catch(Exception e) {
+		        System.out.println(e.getMessage());
+		      }
+		      try {
+		        if(con != null)con.close();
+		      }
+		      catch(Exception e) {
+		        System.out.println(e.getMessage());
+		      }
+		    }
+	}*/
 	static void bookout() {
 		Connection con =null;
 		PreparedStatement pstmt= null;
@@ -119,15 +181,15 @@ public class Book_Ex {
 		
 		String sql = "Select * from book_db order by bookno";
 		try {
-		    con = connectDB();//¿¬°á°´Ã¼¸¦ ÇÒ´ç¹Ş´Â ÀÛ¾÷
+		    con = connectDB();//ì—°ê²°ê°ì²´ë¥¼ í• ë‹¹ë°›ëŠ” ì‘ì—…
 		    pstmt= con.prepareStatement(sql);
 		    rs= pstmt.executeQuery();
 		    
 	        System.out.println();
-	    	System.out.println("### µî·Ïµµ¼­¸ñ·Ï ###");
+	    	System.out.println("### ë“±ë¡ë„ì„œëª©ë¡ ###");
 			System.out.println();
 			System.out.println("======================================");
-			System.out.println("µµ¼­¹øÈ£\t À§Ä¡\t µµ¼­¸í\t ÀúÀÚ\t ÃâÆÇ»ç\t");
+			System.out.println("ë„ì„œë²ˆí˜¸\t ìœ„ì¹˜\t ë„ì„œëª…\t ì €ì\t ì¶œíŒì‚¬\t");
 			System.out.println("======================================");
 
 		    while(rs.next()) {
@@ -140,7 +202,7 @@ public class Book_Ex {
 			System.out.println("======================================");
 		    }//try
 		    catch(Exception e) {
-		      System.out.println("µ¥ÀÌÅÍ º£ÀÌ½º ¿¬°á ½ÇÆĞ!+ "+e.getMessage());
+		      System.out.println("ë°ì´í„° ë² ì´ìŠ¤ ì—°ê²° ì‹¤íŒ¨!+ "+e.getMessage());
 		    }//catch
 		    finally {
 		      try {
@@ -152,7 +214,7 @@ public class Book_Ex {
 		        System.out.println(e.getMessage());
 		      }
 		    }		
-	}//¾Æ¿ô
+	}//ì•„ì›ƒ
 	static void booksearch() {
 		Connection con =null;
 		PreparedStatement pstmt= null;
@@ -161,16 +223,16 @@ public class Book_Ex {
 		String sql = "Select * from book_db where book = ?";
 		try {
 			Scanner sc = new Scanner(System.in);
-			System.out.print("Á¶È¸ÇÒ µµ¼­¸íÀ» ÀÔ·ÂÇÏ¼¼¿ä : ");
+			System.out.print("ì¡°íšŒí•  ë„ì„œëª…ì„ ì…ë ¥í•˜ì„¸ìš” : ");
 			book = sc.next();
 			System.out.println();
-		    con = connectDB();//¿¬°á°´Ã¼¸¦ ÇÒ´ç¹Ş´Â ÀÛ¾÷
+		    con = connectDB();//ì—°ê²°ê°ì²´ë¥¼ í• ë‹¹ë°›ëŠ” ì‘ì—…
 		    pstmt= con.prepareStatement(sql);
 		    pstmt.setString(1, book);
 			rs= pstmt.executeQuery();
 			
 			System.out.println("======================================");
-			System.out.println("µµ¼­¹øÈ£\t À§Ä¡\t µµ¼­¸í\t ÀúÀÚ\t ÃâÆÇ»ç\t");
+			System.out.println("ë„ì„œë²ˆí˜¸\t ìœ„ì¹˜\t ë„ì„œëª…\t ì €ì\t ì¶œíŒì‚¬\t");
 			System.out.println("======================================");
 			while(rs.next()) {
 			System.out.print(rs.getString("bookno")+"\t");
@@ -181,10 +243,10 @@ public class Book_Ex {
 			}
 			System.out.println("======================================");
 			System.out.println();
-			System.out.println("µµ¼­ Á¶È¸°¡ ¿Ï·áµÇ¾ú½À´Ï´Ù.\n");
+			System.out.println("ë„ì„œ ì¡°íšŒê°€ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.\n");
 		}
 		  catch(Exception e) {
-		      System.out.println("µ¥ÀÌÅÍ º£ÀÌ½º ¿¬°á ½ÇÆĞ!+ "+e.getMessage());
+		      System.out.println("ë°ì´í„° ë² ì´ìŠ¤ ì—°ê²° ì‹¤íŒ¨!+ "+e.getMessage());
 		    }//catch
 		    finally {
 		      try {
@@ -196,7 +258,7 @@ public class Book_Ex {
 		        System.out.println(e.getMessage());
 		      }
 		    }		
-	}//¼­Ä¡
+	}//ì„œì¹˜
 	static void bookrevise() {
 		Connection con =null;
 		PreparedStatement pstmt = null;
@@ -205,16 +267,16 @@ public class Book_Ex {
 		String sql ="update book_db set writer = ?, site =?, puble =? where book =?";
 		
 		try {
-			 con = connectDB();//¿¬°á°´Ã¼¸¦ ÇÒ´ç¹Ş´Â ÀÛ¾÷
+			 con = connectDB();//ì—°ê²°ê°ì²´ë¥¼ í• ë‹¹ë°›ëŠ” ì‘ì—…
 		
 			 Scanner sc = new Scanner(System.in);
-			 System.out.print("¼öÁ¤ÇÒ µµ¼­¸íÀ» ÀÔ·ÂÇÏ¼¼¿ä : ");
+			 System.out.print("ìˆ˜ì •í•  ë„ì„œëª…ì„ ì…ë ¥í•˜ì„¸ìš” : ");
 			 book = sc.next();
-			 System.out.print("ÀúÀÚ : ");
+			 System.out.print("ì €ì : ");
 			 writer = sc.next();
-			 System.out.print("µµ¼­À§Ä¡ : ");
+			 System.out.print("ë„ì„œìœ„ì¹˜ : ");
 			 site = sc.next();
-			 System.out.print("ÃâÆÇ»ç : ");
+			 System.out.print("ì¶œíŒì‚¬ : ");
 			 puble = sc.next();
 			 
 			 pstmt= con.prepareStatement(sql);
@@ -223,10 +285,10 @@ public class Book_Ex {
 			 pstmt.setString(3, puble);
 			 pstmt.setString(4, book);
 			 pstmt.executeUpdate();
-			 System.out.println("µµ¼­Á¤º¸°¡ ¼öÁ¤µÇ¾ú½À´Ï´Ù.\n");
+			 System.out.println("ë„ì„œì •ë³´ê°€ ìˆ˜ì •ë˜ì—ˆìŠµë‹ˆë‹¤.\n");
 			} 
 		catch(Exception e) {
-			System.out.println("µ¥ÀÌÅÍº£ÀÌ½º ¿¬°á ½ÇÆĞ !"+ e.getMessage());
+			System.out.println("ë°ì´í„°ë² ì´ìŠ¤ ì—°ê²° ì‹¤íŒ¨ !"+ e.getMessage());
 		}
 		finally {
 			try {
@@ -237,7 +299,7 @@ public class Book_Ex {
 				System.out.println(e.getMessage());
 			}
 		}
-	}//¸®¹ÙÀÌ½º
+	}//ë¦¬ë°”ì´ìŠ¤
 	
 	static void bookdelete() {
 		Connection con =null;
@@ -247,18 +309,18 @@ public class Book_Ex {
 		String sql ="delete from book_db where book =?";
 		
 		try {
-			 con = connectDB();//¿¬°á°´Ã¼¸¦ ÇÒ´ç¹Ş´Â ÀÛ¾÷
+			 con = connectDB();//ì—°ê²°ê°ì²´ë¥¼ í• ë‹¹ë°›ëŠ” ì‘ì—…
 		
 			 Scanner sc = new Scanner(System.in);
-			 System.out.print("»èÁ¦ÇÒ µµ¼­¸íÀ» ÀÔ·ÂÇÏ¼¼¿ä : ");
+			 System.out.print("ì‚­ì œí•  ë„ì„œëª…ì„ ì…ë ¥í•˜ì„¸ìš” : ");
 			 book = sc.next();
 			 pstmt = con.prepareStatement(sql);
 			 pstmt.setString(1, book);
 			 pstmt.executeUpdate();
-			 System.out.println("µî·ÏµÈ µµ¼­°¡ »èÁ¦µÇ¾ú½À´Ï´Ù.\n");
+			 System.out.println("ë“±ë¡ëœ ë„ì„œê°€ ì‚­ì œë˜ì—ˆìŠµë‹ˆë‹¤.\n");
 		}
 		catch(Exception e) {
-			System.out.println("µ¥ÀÌÅÍº£ÀÌ½º ¿¬°á ½ÇÆĞ !"+ e.getMessage());
+			System.out.println("ë°ì´í„°ë² ì´ìŠ¤ ì—°ê²° ì‹¤íŒ¨ !"+ e.getMessage());
 		}
 		finally {
 			try {
